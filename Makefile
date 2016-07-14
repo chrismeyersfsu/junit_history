@@ -1,16 +1,17 @@
 .PHONY: prod prod_build dev prod_tag prod_push prod_release
-PROJ_ID=stoked-archway-645
+PROJ_ID=chris-meyers
+GCR_URL=gcr.io
 
 prod_build:
-	docker build -t junit_history -f Dockerfile.production .
+	docker build -t junit_history .
 dev:
 	docker-compose up
 
 prod_tag:
-	docker tag junit_history us.gcr.io/${PROJ_ID}/junit_history
+	docker tag junit_history ${GCR_URL}/${PROJ_ID}/junit_history:latest
 
 prod_push:
-	gcloud docker push us.gcr.io/${PROJ_ID}/junit_history
+	gcloud docker push ${GCR_URL}/${PROJ_ID}/junit_history:latest
 
 
 prod: prod_build prod_tag prod_push

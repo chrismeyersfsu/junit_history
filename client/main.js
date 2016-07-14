@@ -21,7 +21,7 @@ function populate_test_name(_case, test_names, test_names_dict) {
 }
 function populate_test_names(data, test_names, test_names_dict) {
      _.each(data, function(item) {
-        _.each(item['_source']['suites'], function(suite) {
+        _.each(item['junit']['suites'], function(suite) {
             if (suite['name'] === "pytest") {
                 _.each(suite['cases'], function(_case) {
                     populate_test_name(_case, test_names, test_names_dict);
@@ -35,14 +35,15 @@ function populate_test_names(data, test_names, test_names_dict) {
 }
 function populate_timestamps(data, timestamps) {
      _.each(data, function(item) {
-        timestamps.push((item['_source']['timestamp']));
+        timestamps.push((item['timestamp']));
     });
 }
 
 function populate_x_y(data, test_names_dict) {
     var points = [];
      _.each(data, function(item) {
-        _.each(item['_source']['suites'], function(suite) {
+        _.each(item['junit']['suites'], function(suite) {
+            console.log("Suite name " + suite['name']);
             if (suite['name'] === "pytest") {
                 _.each(suite['cases'], function(_case) {
                     full_name = test_name(_case);
@@ -102,7 +103,8 @@ function generate_graph(data) {
 
 
 $( document ).ready(function() {
-    $.get("sample_data.json", function(data) {
+    //$.get("sample_data.json", function(data) {
+    $.get("/", function(data) {
         populate_timestamps(data, _timestamps);
         populate_test_names(data, _test_names, _test_names_dict);
         points = populate_x_y(data, _test_names_dict);

@@ -5,8 +5,8 @@
   "author": "First Last <first.last@example.com>",
   "main": "server.js",
   "scripts": {
-    "dev": "cd src && nodemon -L server.js",
-    "start": "cd src && node server"
+    "dev": "nodemon -L src/server.js -w src/",
+    "start": "node src/server.js"
   },
   "dependencies": {
     "body-parser": "^1.15.2",

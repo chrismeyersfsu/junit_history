@@ -1,14 +1,15 @@
 junit_history:
-  build: .
-  #image: node:argon
+  #build: .
+  image: gcr.io/chris-meyers/junit_history
   ports:
     - "8080:8080"
   volumes:
-    - .:/junit_history
+    - .:/jh
   links:
     - mongo
-  working_dir: /junit_history/server
-  command: ["npm", "run-script", "dev"]
+  working_dir: /jh/server
+  #command: ["npm", "run-script", "dev"]
+  command: ["npm", "start"]
   entrypoint: "/usr/bin/dumb-init"
 mongo:
   image: mongo:3.0.2

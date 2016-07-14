@@ -11,7 +11,8 @@ spec:
     spec:
       containers:
        - name: junit-history-app
-         image: us.gcr.io/stoked-archway-645/junit_history
+         image: gcr.io/chris-meyers/junit_history:latest
+         imagePullPolicy: Always
          ports:
-         - containerPort: 3000
+         - containerPort: 8080
            name: http-server
