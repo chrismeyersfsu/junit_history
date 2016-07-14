@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: junit-history-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: junit-history-app
+    spec:
+      containers:
+       - name: junit-history-app
+         image: us.gcr.io/stoked-archway-645/junit_history
+         ports:
+         - containerPort: 3000
+           name: http-server

@@ -1,0 +1,14 @@
+junit_history:
+  build: .
+  #image: node:argon
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/junit_history
+  links:
+    - mongo
+  working_dir: /junit_history/server
+  command: ["npm", "run-script", "dev"]
+  entrypoint: "/usr/bin/dumb-init"
+mongo:
+  image: mongo:3.0.2

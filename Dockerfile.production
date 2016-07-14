@@ -1,0 +1,21 @@
+FROM node:argon
+
+# Copy code to docker container
+RUN mkdir /junit_history
+WORKDIR /junit_history
+COPY server .
+COPY client .
+
+# Install deps
+WORKDIR /junit_history/server
+RUN npm install
+
+# Install dumb-init
+RUN wget https://github.com/Yelp/dumb-init/releases/download/v1.0.1/dumb-init_1.0.1_amd64.deb
+RUN dpkg -i dumb-init_*.deb
+RUN rm -rf /dumb-init_*.deb
+
+ENTRYPOINT ["/usr/bin/dumb-init"]
+EXPOSE 80
+WORKDIR /junit_history/server
+CMD [ "npm", "start" ]
