@@ -40,12 +40,9 @@ var GraphTimestampDuration = function(data) {
         formatter : this.handleFormatPointHover,
     });
 
-    //this._graph.series[0].data = data;
-    this._graph.render(); // may not need this
-    this._graph.update();
+    this._graph.render();
 
     this.update_data = function(data) {
-        console.log(data);
         $('#chart_detail_title').text("Duration History for " + test_name(data[0].case));
 
         this._graph.series[0].data = data;

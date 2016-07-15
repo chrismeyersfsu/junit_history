@@ -47,7 +47,19 @@ function init(db, col) {
         });
     });
     api.get('/', function (req, res) {
-        col.find().toArray(function(err, docs) {
+        var search = {
+            'name': req.param('name'),
+        };
+        col.find(search).toArray(function(err, docs) {
+            if(err) {
+                throw err;
+            }
+            res.json(docs);
+        });
+    });
+    api.get('/names/', function (req, res) {
+        //col.find({}, { 'name': 1 }).toArray(function(err, docs) {
+        col.distinct('name', {}, function(err, docs) {
             if(err) {
                 throw err;
             }
