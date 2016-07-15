@@ -1,5 +1,8 @@
 FROM node:argon
 
+# Install nodemon, for dev
+RUN npm install -g nodemon
+
 # Install dumb-init
 RUN wget https://github.com/Yelp/dumb-init/releases/download/v1.0.1/dumb-init_1.0.1_amd64.deb
 RUN dpkg -i dumb-init_*.deb

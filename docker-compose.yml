@@ -8,8 +8,8 @@ junit_history:
   links:
     - mongo
   working_dir: /jh/server
-  #command: ["npm", "run-script", "dev"]
-  command: ["npm", "start"]
   entrypoint: "/usr/bin/dumb-init"
+  command: ["npm", "run-script", "dev"]
+  #command: ["npm", "start"]
 mongo:
   image: mongo:3.0.2

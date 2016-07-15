@@ -13,72 +13,65 @@ var format_x_axis = function(n) {
 }
 
 function test_name(_case) {
-    return _case['className'] + '::' + _case['name'];
+    return _case['classname'] + '::' + _case['name'];
 }
 
-function populate_test_name(_case, test_names, test_names_dict) {
+function _populate_test_name(_case, test_names, test_names_dict) {
     var full_name = test_name(_case);
     if (!test_names_dict[full_name]) {
         var len = test_names.push(full_name);
         test_names_dict[full_name] = Number(len - 1);
     }
 }
-function populate_test_names(data, test_names, test_names_dict) {
-     _.each(data, function(item) {
-        _.each(item['junit']['suites'], function(suite) {
-            if (suite['name'] === "pytest") {
-                _.each(suite['cases'], function(_case) {
-                    populate_test_name(_case, test_names, test_names_dict);
-                });
-            }
+
+function _populate_test_name_timestamp_duration(item, _case, test_name_duration) {
+        var full_name = test_name(_case);
+        if (!test_name_duration[full_name]) {
+            test_name_duration[full_name] = []
+        }
+        test_name_duration[full_name].push({
+            'x': item['timestamp'],
+            'y': Number(_case['time']),
+            'case': _case,
+            'record': item,
         });
-    });
-}
-function populate_timestamps(data, timestamps) {
-     _.each(data, function(item) {
-        timestamps.push((item['timestamp']));
-    });
 }
 
-function populate_test_name_timestamp_duration(data, test_name_duration) {
-   _.each(data, function(item) {
-        _.each(item['junit']['suites'], function(suite) {
-            if (suite['name'] === "pytest") {
-                _.each(suite['cases'], function(_case) {
-                    var full_name = test_name(_case);
-                    if (!test_name_duration[full_name]) {
-                        test_name_duration[full_name] = []
-                    }
-                    test_name_duration[full_name].push({
-                        'x': item.timestamp,
-                        'y': _case.duration,
-                        'case': _case,
-                        'record': item,
-                    });
-                });
-            }
-        });
-    });
-   
+function _populate_timestamp(item, timestamps) {
+    timestamps.push(item['timestamp']);
 }
 
-function populate_x_y(data, test_names_dict) {
+function _populate_x_y(item, _case, test_names_dict, points) {
+    var full_name = test_name(_case);
+    var x_index = test_names_dict[full_name];
+    if (full_name == "awx.main.tests.functional.test_db_credential::test_cred_unique_org_name_kind") {
+        console.log("Index: " + x_index);
+    }
+    var entry = { 'x': x_index, 'y': Number(_case['time']), 'case': _case, 'record': item };
+    points.push(entry);
+}
+
+function loop(data, cb) {
+    _.each(data, function(item) {
+        if (item['junit']['testsuite']['__']['name'] == "pytest") {
+            _.each(item['junit']['testsuite']['testcase'], function(_case) {
+                cb(item, _case['__']);
+            });
+        }
+     });
+}
+
+function populate_data_structures(data, test_names, test_names_dict, test_name_duration, timestamps) {
     var points = [];
-     _.each(data, function(item) {
-        _.each(item['junit']['suites'], function(suite) {
-            console.log("Suite name " + suite['name']);
-            if (suite['name'] === "pytest") {
-                _.each(suite['cases'], function(_case) {
-                    full_name = test_name(_case);
-                    var x_index = test_names_dict[full_name];
-                    if (full_name == "awx.main.tests.functional.test_db_credential::test_cred_unique_org_name_kind") {
-                        console.log("Index: " + x_index);
-                    }
-                    var entry = { 'x': x_index, 'y': _case['duration'], 'case': _case, 'record': item };
-                    points.push(entry);
-                });
-            }
-        });
+    _.each(data, function(item) {
+        _populate_timestamp(item, timestamps);
+    });
+    loop(data, function(item, _case) {
+        _populate_test_name(_case, test_names, test_names_dict);
+        _populate_test_name_timestamp_duration(item, _case, test_name_duration);
+    });
+    loop(data, function(item, _case) {
+        _populate_x_y(item, _case, test_names_dict, points);
     });
     return _.sortBy(points, 'x');
 }
@@ -165,11 +158,7 @@ function generate_graph(data) {
 $( document ).ready(function() {
     //$.get("sample_data.json", function(data) {
     $.get("/", function(data) {
-        populate_timestamps(data, _timestamps);
-        populate_test_name_timestamp_duration(data, _test_name_ts_duration);
-        console.log(_test_name_ts_duration);
-        populate_test_names(data, _test_names, _test_names_dict);
-        points = populate_x_y(data, _test_names_dict);
+        points = populate_data_structures(data, _test_names, _test_names_dict, _test_name_ts_duration, _timestamps);
         _data = points;
 
         generate_graph(_data);

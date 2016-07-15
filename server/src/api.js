@@ -1,11 +1,16 @@
-
 const express = require('express');
-var bodyParser = require('body-parser');
-
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const xml2js = require('xml2js');
+ 
 const PORT = 8080;
 
 // App
 function init(db, col) {
+    var parser = new xml2js.Parser({
+        'attrkey': '__',
+    });
+
     const api = express();
     api.use(bodyParser({limit: '50mb'}));
     //api.use(express.static('public'));
@@ -26,15 +31,19 @@ function init(db, col) {
             'meta_data': req.body.meta_data,
             'junit': req.body.junit,
         }
-        col.findOneAndUpdate({identifier: record_new.identifier}, {$set: record_new}, {
-            returnOriginal: false,
-            upsert: true
-        }, function(err, record) {
-            if(err) {
-                throw err;
-            }
-            console.log(record);
-            res.json(record.value);
+
+        parser.parseString(record_new.junit, function (err, result) {
+            record_new['junit'] = result;
+            col.findOneAndUpdate({identifier: record_new.identifier}, {$set: record_new}, {
+                returnOriginal: false,
+                upsert: true
+            }, function(err, record) {
+                if(err) {
+                    throw err;
+                }
+                console.log(record);
+                res.json(record.value);
+            });
         });
     });
     api.get('/', function (req, res) {
