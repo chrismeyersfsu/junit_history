@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const xml2js = require('xml2js');
+const passport = require('passport');
  
 const PORT = 8080;
 
@@ -20,7 +21,9 @@ function init(db, col) {
     console.log("__dirname = %s", path.resolve(__dirname));
     api.use('/static', express.static('../client'));
 
-    api.post('/', function (req, res) {
+    api.post('/', 
+        passport.authenticate('digest', { session: false }),
+        function (req, res) {
         var record_new = {
             'identifier': req.body.identifier,
             'name': req.body.name,
@@ -46,10 +49,13 @@ function init(db, col) {
             });
         });
     });
-    api.get('/', function (req, res) {
-        var search = {
-            'name': req.param('name'),
-        };
+    api.get('/', 
+        passport.authenticate('digest', { session: false }),
+        function (req, res) {
+        var search = {};
+        if (req.param('name')) {
+            search['name'] = req.param('name');
+        }
         col.find(search).toArray(function(err, docs) {
             if(err) {
                 throw err;
@@ -57,7 +63,9 @@ function init(db, col) {
             res.json(docs);
         });
     });
-    api.get('/names/', function (req, res) {
+    api.get('/names/', 
+        passport.authenticate('digest', { session: false }),
+        function (req, res) {
         //col.find({}, { 'name': 1 }).toArray(function(err, docs) {
         col.distinct('name', {}, function(err, docs) {
             if(err) {

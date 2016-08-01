@@ -12,6 +12,8 @@
     "body-parser": "^1.15.2",
     "express": "^4.13.3",
     "mongodb": "^2.2.1",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
     "xml2js": "^0.4.17"
   }
 }
